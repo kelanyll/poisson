@@ -1,0 +1,3 @@
+[submodule "external/BOOM"]
+	path = external/BOOM
+	url = https://github.com/steve-the-bayesian/BOOM
