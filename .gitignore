@@ -1,3 +1,5 @@
 build/
 .vscode/
 .devcontainer/
+notes.md
+.DS_Store

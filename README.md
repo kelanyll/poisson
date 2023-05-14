@@ -1,0 +1,1 @@
+You have to run `cmake` with `-DCMAKE_TOOLCHAIN_FILE=/usr/local/vcpkg/scripts/buildsystems/vcpkg.cmake` to pick up vcpkg packages. If `CMakeCache.txt` doesn't have any vcpkg variables, delete it and generate the build again.

@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.18.4)
 
+set(CMAKE_CXX_STANDARD 17)
+
 include(ExternalProject)
 
 project(poisson)
 
-add_executable(poisson main.cpp)
+add_executable(poisson src/main.cpp src/PoissonRegressionTrainer.hpp src/PoissonRegressionTrainer.cpp)
 
 set(BOOM_SRC_DIR "${CMAKE_BINARY_DIR}/boom")
 
@@ -24,7 +26,21 @@ add_dependencies(poisson boom)
 
 target_include_directories(poisson PRIVATE ${BOOM_SRC_DIR})
 target_include_directories(poisson PRIVATE ${BOOM_SRC_DIR}/cpputil)
+target_include_directories(poisson PRIVATE ${BOOM_SRC_DIR}/Models/Glm)
+target_include_directories(poisson PRIVATE ${BOOM_SRC_DIR}/Models)
+target_include_directories(poisson PRIVATE ${BOOM_SRC_DIR}/Models/Policies)
 
-target_link_libraries(poisson ${BOOM_SRC_DIR}/bazel-bin/libboom.a)
+target_link_libraries(poisson PRIVATE ${BOOM_SRC_DIR}/bazel-bin/libboom.a)
+
+find_package(DataFrame CONFIG REQUIRED)
+target_include_directories(poisson PRIVATE ${DataFrame_INCLUDE_DIRS})
+target_link_libraries(poisson PRIVATE DataFrame::DataFrame)
+
+enable_testing()
+    
+find_package(GTest CONFIG REQUIRED)
+target_link_libraries(poisson PRIVATE GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+
+# add_test(AllTestsInMain main)
 
 install(TARGETS poisson DESTINATION ${CMAKE_BINARY_DIR}/bin)
