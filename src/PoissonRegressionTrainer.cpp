@@ -2,7 +2,11 @@
 
 #include "PoissonRegressionTrainer.hpp"
 
-PoissonRegressionTrainer::PoissonRegressionTrainer(ULDataFrame &df) : model{0} {
+// still needs to store col names (rather than the full data frame) - or col values
+// dataframe is transformed first. and then passed (as a reference to trainer)
+// lets just store a pointer to it instead
+// will we be able to do it in place?
+PoissonRegressionTrainer::PoissonRegressionTrainer(ULDataFrame &df, std::string y_col_name) : model{0} {
     this->one_hot_encoded_column_names = get_one_hot_encoded_column_names(df);
     transform_columns_in_place(df, this->one_hot_encoded_column_names);
     add_intercept_column(df);

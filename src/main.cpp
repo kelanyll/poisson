@@ -3,6 +3,7 @@
 #include "PoissonRegressionModel.hpp"
 #include <DataFrame/DataFrame.h>
 #include "PoissonRegressionTrainer.hpp"
+#include "goals-predict.hpp"
 
 using namespace std;
 using namespace BOOM;
@@ -27,19 +28,19 @@ Dataset get_dataset();
 void print_coefs(PoissonRegressionModel model);
 
 ULDataFrame get_data() {
-    ULDataFrame data_frame;
-    data_frame.load_data(std::vector<unsigned long>{1,2,3}, 
+    ULDataFrame df;
+    df.load_data(std::vector<unsigned long>{1,2,3}, 
         std::make_pair("home", std::vector<std::string>{"Wolves", "Sunderland","Chelsea"}),
         std::make_pair("away", std::vector<std::string>{"Sunderland", "Chelsea","Wolves"}),
         std::make_pair("home_goals", std::vector<int>{0, 1, 2}),
         std::make_pair("away_goals", std::vector<int>{2, 1, 0})
     );
 
-    return std::move(data_frame);
+    return df;
 }
 
 int main() {
-    ULDataFrame train_df = get_data();
+    ULDataFrame train_df = transform_to_row_per_goals(get_data());
 
     // const auto &col_ref = data_frame.get_column<std::string>("home");
     // cout << col_ref[1] << col_ref[2] << endl;
@@ -47,7 +48,7 @@ int main() {
     // std::pair shape = data_frame.shape();
     // cout << "size: " << std::get<0>(shape) << "x" << std::get<1>(shape) << endl;
 
-    PoissonRegressionTrainer model = PoissonRegressionTrainer{train_df};
+    PoissonRegressionTrainer model = PoissonRegressionTrainer{train_df, "goals"};
     
     ULDataFrame test_df{};
     for (double y : model.predict(test_df)) {

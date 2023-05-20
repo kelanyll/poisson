@@ -1,10 +1,6 @@
+#include "data-types.hpp"
 #include "PoissonRegressionModel.hpp"
 #include <DataFrame/DataFrame.h>
-
-using namespace BOOM;
-using namespace hmdf;
-
-using ULDataFrame = StdDataFrame<unsigned long>;
 
 // goals of this is to allow training on a dataframe
 class PoissonRegressionTrainer {
@@ -17,7 +13,7 @@ class PoissonRegressionTrainer {
         void add_intercept_column(ULDataFrame &df);
         BOOM::ConstVectorView dataframe_row_to_boom_vector(hmdf::HeteroVector row);
     public:
-        PoissonRegressionTrainer(ULDataFrame &df);
+        PoissonRegressionTrainer(ULDataFrame &df, std::string y_col_name);
         std::vector<double> predict(ULDataFrame &df);
 };
 /*
