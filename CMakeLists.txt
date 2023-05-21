@@ -35,6 +35,8 @@ find_package(DataFrame CONFIG REQUIRED)
 target_include_directories(poisson PRIVATE ${DataFrame_INCLUDE_DIRS})
 target_link_libraries(poisson PRIVATE DataFrame::DataFrame)
 
+target_compile_options(poisson PRIVATE -g)
+
 enable_testing()
     
 find_package(GTest CONFIG REQUIRED)

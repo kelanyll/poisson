@@ -2,10 +2,9 @@
 #include "util.hpp"
 
 /*
-home, away, home_goals, away_goals
-team, opponent, home, goals (resp) (custom transformation)
+home, away, home_goals, away_goals -> team, opponent, home, goals
 */
-ULDataFrame transform_to_row_per_goals(ULDataFrame df) {
+ULDataFrame transform_to_row_per_goals(ULDataFrame&& df) {
     ULDataFrame new_df{};
 
     std::vector<unsigned long> idx{df.get_index()};
@@ -32,4 +31,3 @@ ULDataFrame transform_to_row_per_goals(ULDataFrame df) {
 
     return new_df;
 }
-

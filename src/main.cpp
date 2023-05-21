@@ -40,7 +40,8 @@ ULDataFrame get_data() {
 }
 
 int main() {
-    ULDataFrame train_df = transform_to_row_per_goals(get_data());
+    // This will call the move assignment operator.
+    ULDataFrame train_df{transform_to_row_per_goals(get_data())};
 
     // const auto &col_ref = data_frame.get_column<std::string>("home");
     // cout << col_ref[1] << col_ref[2] << endl;
