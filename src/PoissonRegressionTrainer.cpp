@@ -1,19 +1,19 @@
 #include <unordered_set>
 
 #include "PoissonRegressionTrainer.hpp"
+#include "goals-predict.hpp"
 
 // still needs to store col names (rather than the full data frame) - or col values
 // dataframe is transformed first. and then passed (as a reference to trainer)
 // lets just store a pointer to it instead
 // will we be able to do it in place?
-PoissonRegressionTrainer::PoissonRegressionTrainer(ULDataFrame &df, std::string y_col_name) : model{0} {
-    this->one_hot_encoded_column_names = get_one_hot_encoded_column_names(df);
-    transform_columns_in_place(df, this->one_hot_encoded_column_names);
+PoissonRegressionTrainer::PoissonRegressionTrainer(ULDataFrame df, std::string y_col_name) : model{0} {
+    ULDataFrame transformed_df = add_intercept_column(one_hot_encode(df));
     add_intercept_column(df);
 
     auto get_num_cols = [](const ULDataFrame &df) { return df.shape().second; };
     this->model = PoissonRegressionModel{get_num_cols(df)};
-    // need to set data first
+    //this->model.add_data()
     this->model.mle();
 };
 
@@ -53,8 +53,8 @@ void PoissonRegressionTrainer::transform_columns_in_place(ULDataFrame &data_fram
     return;
 };
 
-void PoissonRegressionTrainer::add_intercept_column(ULDataFrame &data_frame) {
-    return;
+ULDataFrame PoissonRegressionTrainer::add_intercept_column(ULDataFrame data_frame) {
+    return ULDataFrame{};
 };
 
 BOOM::ConstVectorView PoissonRegressionTrainer::dataframe_row_to_boom_vector(hmdf::HeteroVector row) {
