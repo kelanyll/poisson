@@ -8,7 +8,7 @@
 // lets just store a pointer to it instead
 // will we be able to do it in place?
 PoissonRegressionTrainer::PoissonRegressionTrainer(ULDataFrame df, std::string y_col_name) : model{0} {
-    ULDataFrame transformed_df = add_intercept_column(one_hot_encode(df));
+    ULDataFrame transformed_df = add_intercept_column(one_hot_encode(std::move(df)));
     add_intercept_column(df);
 
     auto get_num_cols = [](const ULDataFrame &df) { return df.shape().second; };

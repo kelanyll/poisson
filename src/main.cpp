@@ -40,7 +40,6 @@ ULDataFrame get_data() {
 }
 
 int main() {
-    // This will call the move assignment operator.
     ULDataFrame train_df{transform_to_row_per_goals(get_data())};
 
     // const auto &col_ref = data_frame.get_column<std::string>("home");
@@ -49,7 +48,7 @@ int main() {
     // std::pair shape = data_frame.shape();
     // cout << "size: " << std::get<0>(shape) << "x" << std::get<1>(shape) << endl;
 
-    PoissonRegressionTrainer model = PoissonRegressionTrainer{train_df, "goals"};
+    PoissonRegressionTrainer model = PoissonRegressionTrainer{std::move(train_df), "goals"};
     
     ULDataFrame test_df{};
     for (double y : model.predict(test_df)) {

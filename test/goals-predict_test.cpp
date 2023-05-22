@@ -33,7 +33,7 @@ TEST(OneHotEncodeTest, FullTestCase) {
         std::make_pair("goals", std::vector<int>{0, 1, 2, 2, 1, 0})
     );
 
-    ULDataFrame actual_df = one_hot_encode(test_df);
+    ULDataFrame actual_df = one_hot_encode(std::move(test_df));
 
     ULDataFrame expected_df;
     expected_df.load_data(std::vector<unsigned long>{1,2,3,4,5,6},
