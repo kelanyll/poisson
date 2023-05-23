@@ -39,10 +39,10 @@ ULDataFrame one_hot_encode(ULDataFrame df) {
     for (std::tuple<ULDataFrame::ColNameType,
                     ULDataFrame::size_type,
                     std::type_index> col_info : df.get_columns_info<std::string>()) {
-        std::unordered_map<std::string, std::vector<unsigned int>> encoded_cols;
-
         auto col_name = std::get<0>(col_info).c_str();
         auto col_data = df.get_column<std::string>(col_name);
+
+        std::unordered_map<std::string, std::vector<unsigned int>> encoded_cols;
 
         for (auto val : df.get_col_unique_values<std::string>(col_name)) {
             encoded_cols[std::string{col_name} + "_" + val] = std::vector<unsigned int>(col_data.size(), 0);
@@ -59,7 +59,20 @@ ULDataFrame one_hot_encode(ULDataFrame df) {
         }
     }
 
-    // same deal but bools
+    for (std::tuple<ULDataFrame::ColNameType,
+                    ULDataFrame::size_type,
+                    std::type_index> col_info : df.get_columns_info<bool>()) {
+        auto col_name = std::get<0>(col_info).c_str();
+        auto col_data = df.get_column<bool>(col_name);
+
+        std::vector<unsigned int> encoded_col(col_data.size());
+
+        std::transform(col_data.begin(), col_data.end(), encoded_col.begin(),
+                    [](bool value) { return value ? 1 : 0; });
+
+        df.remove_column(col_name);
+        df.load_column<unsigned int>(col_name, std::move(encoded_col));
+    }
 
     return df;
 }

@@ -30,7 +30,7 @@ TEST(OneHotEncodeTest, FullTestCase) {
         std::make_pair("team", std::vector<std::string>{"Wolves", "Sunderland","Chelsea", "Sunderland", "Chelsea", "Wolves"}),
         std::make_pair("opponent", std::vector<std::string>{"Sunderland", "Chelsea", "Wolves", "Wolves", "Sunderland", "Chelsea"}),
         std::make_pair("home", std::vector<bool>{true, true, true, false, false, false}),
-        std::make_pair("goals", std::vector<int>{0, 1, 2, 2, 1, 0})
+        std::make_pair("goals", std::vector<unsigned int>{0, 1, 2, 2, 1, 0})
     );
 
     ULDataFrame actual_df = one_hot_encode(std::move(test_df));
@@ -43,10 +43,10 @@ TEST(OneHotEncodeTest, FullTestCase) {
         std::make_pair("opponent_Wolves", std::vector<unsigned int>{0, 0, 1, 1, 0, 0}),
         std::make_pair("opponent_Chelsea", std::vector<unsigned int>{0, 1, 0, 0, 0, 1}),
         std::make_pair("opponent_Sunderland", std::vector<unsigned int>{1, 0, 0, 0, 1, 0}),
-        std::make_pair("home", std::vector<bool>{true, true, true, false, false, false}),
-        std::make_pair("goals", std::vector<int>{0, 1, 2, 2, 1, 0})
+        std::make_pair("home", std::vector<unsigned int>{1, 1, 1, 0, 0, 0}),
+        std::make_pair("goals", std::vector<unsigned int>{0, 1, 2, 2, 1, 0})
     );
 
-    auto is_equal = actual_df.is_equal<std::string, bool, int>(expected_df);
+    auto is_equal = actual_df.is_equal<unsigned int>(expected_df);
     EXPECT_TRUE(is_equal);
 }
