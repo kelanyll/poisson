@@ -6,11 +6,7 @@
 class PoissonRegressionTrainer {
     private:
         PoissonRegressionModel model;
-        std::vector<std::string> one_hot_encoded_column_names;
 
-        std::vector<std::string> get_one_hot_encoded_column_names(const ULDataFrame &df);
-        void transform_columns_in_place(ULDataFrame &df, const std::vector<std::string> &col_names);
-        ULDataFrame add_intercept_column(ULDataFrame df);
         BOOM::ConstVectorView dataframe_row_to_boom_vector(hmdf::HeteroVector row);
     public:
         PoissonRegressionTrainer(ULDataFrame df, std::string y_col_name);

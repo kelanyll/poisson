@@ -76,3 +76,7 @@ ULDataFrame one_hot_encode(ULDataFrame df) {
 
     return df;
 }
+
+void add_intercept(ULDataFrame& df) {
+    df.load_column<unsigned int>("intercept", std::vector<unsigned int>(get_num_rows(df), 1));
+}
