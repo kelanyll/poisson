@@ -1,3 +1,7 @@
+#include <iostream>
 #include "data-types.hpp"
 
-int get_num_rows(const ULDataFrame &df) { return df.shape().first; };
+template<typename ... Ts>
+void print_dataframe(const ULDataFrame &df) { df.write<std::ostream, Ts...>(std::cout); }
+
+int get_num_rows(const ULDataFrame &df);

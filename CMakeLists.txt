@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 project(poisson)
 
-add_executable(poisson src/main.cpp src/PoissonRegressionTrainer.hpp src/PoissonRegressionTrainer.cpp src/data-types.hpp src/goals-predict.hpp src/goals-predict.cpp src/util.hpp)
+add_executable(poisson src/main.cpp src/PoissonRegressionTrainer.hpp src/PoissonRegressionTrainer.cpp src/data-types.hpp src/goals-predict.hpp src/goals-predict.cpp src/util.hpp src/util.cpp)
 
 set(BOOM_SRC_DIR "${CMAKE_BINARY_DIR}/boom")
 
@@ -41,7 +41,8 @@ enable_testing()
     
 find_package(GTest CONFIG REQUIRED)
 
-add_executable(tests test/goals-predict_test.cpp src/goals-predict.cpp)
+# put tested files in core lib
+add_executable(tests src/util.hpp src/util.cpp test/goals-predict_test.cpp src/goals-predict.cpp test/test-util.hpp)
 
 target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
 

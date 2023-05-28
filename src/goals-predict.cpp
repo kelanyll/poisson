@@ -16,7 +16,7 @@ ULDataFrame transform_to_row_per_goals(ULDataFrame df) {
     new_df.load_column<std::string>("team", df.get_column<std::string>("home"));
     new_df.load_column<std::string>("opponent", df.get_column<std::string>("away"));
     new_df.load_column<bool>("home", std::vector<bool>(get_num_rows(df), true));
-    new_df.load_column<int>("goals", df.get_column<int>("home_goals"));
+    new_df.load_column<unsigned int>("goals", df.get_column<unsigned int>("home_goals"));
 
     ULDataFrame away_rows{};
     
@@ -28,9 +28,9 @@ ULDataFrame transform_to_row_per_goals(ULDataFrame df) {
     away_rows.load_column<std::string>("team", df.get_column<std::string>("away"));
     away_rows.load_column<std::string>("opponent", df.get_column<std::string>("home"));
     away_rows.load_column<bool>("home", std::vector<bool>(get_num_rows(df), false));
-    away_rows.load_column<int>("goals", df.get_column<int>("away_goals"));
+    away_rows.load_column<unsigned int>("goals", df.get_column<unsigned int>("away_goals"));
 
-    new_df.self_concat<ULDataFrame, std::string, bool, int>(away_rows);
+    new_df.self_concat<ULDataFrame, std::string, bool, unsigned int>(away_rows);
 
     return new_df;
 }

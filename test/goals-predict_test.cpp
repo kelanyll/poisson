@@ -1,13 +1,15 @@
 #include "goals-predict.hpp"
 #include "gtest/gtest.h"
+#include "util.hpp"
+#include "test-util.hpp"
 
 TEST(TransformToRowPerGoalsTest, FullTestCase) {
     ULDataFrame test_df;
     test_df.load_data(std::vector<unsigned long>{1,2,3}, 
         std::make_pair("home", std::vector<std::string>{"Wolves", "Sunderland","Chelsea"}),
         std::make_pair("away", std::vector<std::string>{"Sunderland", "Chelsea","Wolves"}),
-        std::make_pair("home_goals", std::vector<int>{0, 1, 2}),
-        std::make_pair("away_goals", std::vector<int>{2, 1, 0})
+        std::make_pair("home_goals", std::vector<unsigned int>{0, 1, 2}),
+        std::make_pair("away_goals", std::vector<unsigned int>{2, 1, 0})
     );
 
     ULDataFrame actual_df = transform_to_row_per_goals(std::move(test_df));
@@ -17,10 +19,10 @@ TEST(TransformToRowPerGoalsTest, FullTestCase) {
         std::make_pair("team", std::vector<std::string>{"Wolves", "Sunderland","Chelsea", "Sunderland", "Chelsea", "Wolves"}),
         std::make_pair("opponent", std::vector<std::string>{"Sunderland", "Chelsea", "Wolves", "Wolves", "Sunderland", "Chelsea"}),
         std::make_pair("home", std::vector<bool>{true, true, true, false, false, false}),
-        std::make_pair("goals", std::vector<int>{0, 1, 2, 2, 1, 0})
+        std::make_pair("goals", std::vector<unsigned int>{0, 1, 2, 2, 1, 0})
     );
 
-    auto is_equal = actual_df.is_equal<std::string, bool, int>(expected_df);
+    auto is_equal = check_df_equal<std::string, bool, unsigned int>(actual_df, expected_df);
     EXPECT_TRUE(is_equal);
 }
 
@@ -47,7 +49,7 @@ TEST(OneHotEncodeTest, FullTestCase) {
         std::make_pair("goals", std::vector<unsigned int>{0, 1, 2, 2, 1, 0})
     );
 
-    auto is_equal = actual_df.is_equal<unsigned int>(expected_df);
+    auto is_equal = check_df_equal<std::string, bool, unsigned int>(actual_df, expected_df);
     EXPECT_TRUE(is_equal);
 }
 
@@ -79,6 +81,6 @@ TEST(AddInterceptTest, FullTestCase) {
         std::make_pair("intercept", std::vector<unsigned int>{1, 1, 1, 1, 1, 1})
     );
 
-    auto is_equal = test_df.is_equal<unsigned int>(expected_df);
+    auto is_equal = check_df_equal<unsigned int>(test_df, expected_df);
     EXPECT_TRUE(is_equal);
 }
