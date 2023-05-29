@@ -4,8 +4,6 @@ set(CMAKE_CXX_STANDARD 17)
 
 project(poisson)
 
-add_executable(poisson src/main.cpp src/PoissonRegressionTrainer.hpp src/PoissonRegressionTrainer.cpp src/data-types.hpp src/goals-predict.hpp src/goals-predict.cpp src/util.hpp src/util.cpp)
-
 set(BOOM_SRC_DIR "${CMAKE_BINARY_DIR}/boom")
 
 include(ExternalProject)
@@ -21,46 +19,32 @@ ExternalProject_Add(
     INSTALL_COMMAND ""
 )
 
-add_dependencies(poisson boom)
-
-target_include_directories(poisson PRIVATE ${BOOM_SRC_DIR})
-target_include_directories(poisson PRIVATE ${BOOM_SRC_DIR}/cpputil)
-target_include_directories(poisson PRIVATE ${BOOM_SRC_DIR}/Models/Glm)
-target_include_directories(poisson PRIVATE ${BOOM_SRC_DIR}/Models)
-target_include_directories(poisson PRIVATE ${BOOM_SRC_DIR}/Models/Policies)
-
-target_link_libraries(poisson PRIVATE ${BOOM_SRC_DIR}/bazel-bin/libboom.a)
+add_library(core lib/src/PoissonRegressionTrainer.cpp lib/src/goals-predict.cpp lib/src/util.cpp)
+target_include_directories(core PUBLIC lib/include)
+target_include_directories(core PUBLIC ${BOOM_SRC_DIR})
+target_include_directories(core PUBLIC ${BOOM_SRC_DIR}/cpputil)
+target_include_directories(core PUBLIC ${BOOM_SRC_DIR}/Models/Glm)
+target_include_directories(core PUBLIC ${BOOM_SRC_DIR}/Models)
+target_include_directories(core PUBLIC ${BOOM_SRC_DIR}/Models/Policies)
+target_link_libraries(core PUBLIC ${BOOM_SRC_DIR}/bazel-bin/libboom.a)
+add_dependencies(core boom)
 
 find_package(DataFrame CONFIG REQUIRED)
-target_include_directories(poisson PRIVATE ${DataFrame_INCLUDE_DIRS})
-target_link_libraries(poisson PRIVATE DataFrame::DataFrame)
+target_include_directories(core PUBLIC ${DataFrame_INCLUDE_DIRS})
+target_link_libraries(core PUBLIC DataFrame::DataFrame)
 
-target_compile_options(poisson PRIVATE -g)
+add_executable(poisson poisson/src/main.cpp)
+target_link_libraries(poisson PUBLIC core)
+
+add_executable(tests test/goals-predict_test.cpp test/test-util.hpp)
+target_link_libraries(tests PUBLIC core)
 
 enable_testing()
-    
 find_package(GTest CONFIG REQUIRED)
-
-# put tested files in core lib
-add_executable(tests src/util.hpp src/util.cpp test/goals-predict_test.cpp src/goals-predict.cpp test/test-util.hpp)
-
-target_include_directories(tests PRIVATE ${CMAKE_SOURCE_DIR}/src)
-
-target_include_directories(tests PRIVATE ${BOOM_SRC_DIR})
-target_include_directories(tests PRIVATE ${BOOM_SRC_DIR}/cpputil)
-target_include_directories(tests PRIVATE ${BOOM_SRC_DIR}/Models/Glm)
-target_include_directories(tests PRIVATE ${BOOM_SRC_DIR}/Models)
-target_include_directories(tests PRIVATE ${BOOM_SRC_DIR}/Models/Policies)
-target_link_libraries(tests PRIVATE ${BOOM_SRC_DIR}/bazel-bin/libboom.a)
-
-target_include_directories(tests PRIVATE ${DataFrame_INCLUDE_DIRS})
-target_link_libraries(tests PRIVATE DataFrame::DataFrame)
-
 target_link_libraries(tests PRIVATE GTest::gtest_main)
+target_compile_options(tests PUBLIC -g)
 
 include(GoogleTest)
 gtest_discover_tests(tests)
-
-target_compile_options(tests PRIVATE -g)
 
 install(TARGETS poisson DESTINATION ${CMAKE_BINARY_DIR}/bin)
