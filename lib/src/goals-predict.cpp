@@ -36,6 +36,13 @@ ULDataFrame transform_to_row_per_goals(ULDataFrame df) {
 }
 
 ULDataFrame one_hot_encode(ULDataFrame df) {
+    one_hot_encode_string(df);
+    one_hot_encode_bool(df);
+
+    return df;
+}
+
+void one_hot_encode_string(ULDataFrame& df) {
     for (std::tuple<ULDataFrame::ColNameType,
                     ULDataFrame::size_type,
                     std::type_index> col_info : df.get_columns_info<std::string>()) {
@@ -58,7 +65,9 @@ ULDataFrame one_hot_encode(ULDataFrame df) {
             df.load_column<unsigned int>(pair.first.c_str(), std::move(pair.second));
         }
     }
+}
 
+void one_hot_encode_bool(ULDataFrame& df) {
     for (std::tuple<ULDataFrame::ColNameType,
                     ULDataFrame::size_type,
                     std::type_index> col_info : df.get_columns_info<bool>()) {
@@ -73,10 +82,23 @@ ULDataFrame one_hot_encode(ULDataFrame df) {
         df.remove_column(col_name);
         df.load_column<unsigned int>(col_name, std::move(encoded_col));
     }
-
-    return df;
 }
 
 void add_intercept(ULDataFrame& df) {
     df.load_column<unsigned int>("intercept", std::vector<unsigned int>(get_num_rows(df), 1));
+}
+
+std::vector<Ptr<PoissonRegressionData>> convert_to_poisson_regression_data(ULDataFrame df, std::string y_col_name) {
+    int y_col_idx = df.col_name_to_idx(y_col_name.c_str());
+
+    std::vector<Ptr<PoissonRegressionData>> data{};
+    for (int i = 0; i < get_num_rows(df); i++) {
+        std::vector<unsigned int> row{df.get_row<unsigned int>(i).get_vector<unsigned int>()};
+        unsigned int y_val = row[y_col_idx];
+        row.erase(row.begin() + y_col_idx);
+
+        data.push_back(Ptr{new PoissonRegressionData{y_val, row}});
+    }
+
+    return data;
 }
