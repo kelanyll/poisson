@@ -4,45 +4,45 @@
 #include "data-types.hpp"
 #include "util.hpp"
 
-/*
-home, away, home_goals, away_goals -> team, opponent, home, goals
-*/
-ULDataFrame transform_to_row_per_goals(ULDataFrame df) {
-    ULDataFrame new_df{};
-
-    std::vector<unsigned long> idx{df.get_index()};
-    new_df.load_index(idx.begin(), idx.end());
-
-    new_df.load_column<std::string>("team", df.get_column<std::string>("home"));
-    new_df.load_column<std::string>("opponent", df.get_column<std::string>("away"));
-    new_df.load_column<bool>("home", std::vector<bool>(get_num_rows(df), true));
-    new_df.load_column<unsigned int>("goals", df.get_column<unsigned int>("home_goals"));
-
-    ULDataFrame away_rows{};
-    
-    int num_rows = get_num_rows(df);
-    std::vector<unsigned long> away_rows_idx(num_rows);
-    std::iota(away_rows_idx.begin(), away_rows_idx.end(), idx.back() + 1);
-    away_rows.load_index(away_rows_idx.begin(), away_rows_idx.end());
-
-    away_rows.load_column<std::string>("team", df.get_column<std::string>("away"));
-    away_rows.load_column<std::string>("opponent", df.get_column<std::string>("home"));
-    away_rows.load_column<bool>("home", std::vector<bool>(get_num_rows(df), false));
-    away_rows.load_column<unsigned int>("goals", df.get_column<unsigned int>("away_goals"));
-
-    new_df.self_concat<ULDataFrame, std::string, bool, unsigned int>(away_rows);
-
-    return new_df;
-}
-
-ULDataFrame one_hot_encode(ULDataFrame df) {
+ULDataFrame DataFramePosRegTransformerImpl::one_hot_encode(ULDataFrame df) {
     one_hot_encode_string(df);
     one_hot_encode_bool(df);
 
     return df;
 }
 
-void one_hot_encode_string(ULDataFrame& df) {
+std::vector<std::string> DataFramePosRegTransformerImpl::get_col_names(ULDataFrame df) {
+    auto all_col_info{df.get_columns_info<unsigned int>()};
+    std::vector<std::string> col_names{};
+    std::transform(all_col_info.begin(), all_col_info.end(), std::back_inserter(col_names), 
+        [](std::tuple<typename ULDataFrame::ColNameType,
+            typename ULDataFrame::size_type, std::type_index> col_info) {
+                return std::string(std::get<0>(col_info).c_str());
+        }
+    );
+
+    return col_names;
+}
+
+std::vector<Ptr<PoissonRegressionData>> DataFramePosRegTransformerImpl::convert_to_poisson_regression_data(ULDataFrame df, std::string y_col_name, std::vector<std::string> x_col_names) {
+    std::vector<Ptr<PoissonRegressionData>> data{};
+
+    std::vector<const char*> x_col_names_c_str{};
+    std::transform(x_col_names.begin(), x_col_names.end(), std::back_inserter(x_col_names_c_str), [](std::string& col_name) {
+        return col_name.c_str();
+    });
+
+    for (int i = 0; i < get_num_rows(df); i++) {
+        data.push_back(Ptr{new PoissonRegressionData{
+            df.get_row<unsigned int>(i, std::vector<const char*>{y_col_name.c_str()}).get_vector<unsigned int>()[0],
+            df.get_row<unsigned int>(i, x_col_names_c_str).get_vector<unsigned int>()
+        }});
+    }
+
+    return data;
+}
+
+void DataFramePosRegTransformerImpl::one_hot_encode_string(ULDataFrame& df) {
     for (std::tuple<ULDataFrame::ColNameType,
                     ULDataFrame::size_type,
                     std::type_index> col_info : df.get_columns_info<std::string>()) {
@@ -67,7 +67,7 @@ void one_hot_encode_string(ULDataFrame& df) {
     }
 }
 
-void one_hot_encode_bool(ULDataFrame& df) {
+void DataFramePosRegTransformerImpl::one_hot_encode_bool(ULDataFrame& df) {
     for (std::tuple<ULDataFrame::ColNameType,
                     ULDataFrame::size_type,
                     std::type_index> col_info : df.get_columns_info<bool>()) {
@@ -82,23 +82,4 @@ void one_hot_encode_bool(ULDataFrame& df) {
         df.remove_column(col_name);
         df.load_column<unsigned int>(col_name, std::move(encoded_col));
     }
-}
-
-void add_intercept(ULDataFrame& df) {
-    df.load_column<unsigned int>("intercept", std::vector<unsigned int>(get_num_rows(df), 1));
-}
-
-std::vector<Ptr<PoissonRegressionData>> convert_to_poisson_regression_data(ULDataFrame df, std::string y_col_name) {
-    int y_col_idx = df.col_name_to_idx(y_col_name.c_str());
-
-    std::vector<Ptr<PoissonRegressionData>> data{};
-    for (int i = 0; i < get_num_rows(df); i++) {
-        std::vector<unsigned int> row{df.get_row<unsigned int>(i).get_vector<unsigned int>()};
-        unsigned int y_val = row[y_col_idx];
-        row.erase(row.begin() + y_col_idx);
-
-        data.push_back(Ptr{new PoissonRegressionData{y_val, row}});
-    }
-
-    return data;
 }
