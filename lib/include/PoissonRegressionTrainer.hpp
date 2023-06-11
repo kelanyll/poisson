@@ -8,13 +8,12 @@
  * This is compatible with DataFrame columns of type unsigned int,
  * bool and std::string.
  */
-class 
-PoissonRegressionTrainer {
+class PoissonRegressionTrainer {
     public:
         PoissonRegressionTrainer();
         PoissonRegressionTrainer(DataFramePosRegTransformer* transforms);
         PoissonRegressionModelData get_poisson_regression_model_data(ULDataFrame df, std::string y_col_name);
-        std::vector<ConstVectorView> generate_x(ULDataFrame df, PoissonRegressionModelData model_data);
+        std::vector<std::vector<double>> generate_x(ULDataFrame df, PoissonRegressionModelData model_data);
     private:
         DataFramePosRegTransformer* transforms;
 };

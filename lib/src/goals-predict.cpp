@@ -42,6 +42,14 @@ std::vector<Ptr<PoissonRegressionData>> DataFramePosRegTransformerImpl::convert_
     return data;
 }
 
+ULDataFrame DataFramePosRegTransformerImpl::add_missing_cols(ULDataFrame df, std::vector<std::string> col_names) {
+    return ULDataFrame{};
+}
+
+std::vector<std::vector<double>> DataFramePosRegTransformerImpl::get_row_vectors(ULDataFrame df) {
+    return std::vector<std::vector<double>>{};
+}
+
 void DataFramePosRegTransformerImpl::one_hot_encode_string(ULDataFrame& df) {
     for (std::tuple<ULDataFrame::ColNameType,
                     ULDataFrame::size_type,

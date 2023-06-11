@@ -89,7 +89,7 @@ int main() {
     // transform_to_row_per_goals has to be able to convert test rows as well (without goals columns)
     ULDataFrame test_df{add_intercept(get_test_data())};
     
-    for (ConstVectorView x : trainer.generate_x(test_df, model_data)) {
+    for (Vector x : trainer.generate_x(test_df, model_data)) {
         double lambda = exp(model.predict(x));
         std::cout << "Expected goals: " << lambda << std::endl;
     }
