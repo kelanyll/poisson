@@ -1,27 +1,25 @@
 #include <unordered_set>
 
 #include "PoissonRegressionTrainer.hpp"
-#include "goals-predict.hpp"
 
-PoissonRegressionTrainer::PoissonRegressionTrainer(ULDataFrame df, std::string y_col_name) : model{0} {
-    ULDataFrame transformed_df = one_hot_encode(std::move(df));
-    add_intercept(transformed_df);
+PoissonRegressionTrainer::PoissonRegressionTrainer() : transforms{new DataFramePosRegTransformerImpl{}} {}
 
-    auto get_num_cols = [](const ULDataFrame &df) { return df.shape().second; };
-    this->model = PoissonRegressionModel{get_num_cols(df)};
-    this->model.set_data(convert_to_poisson_regression_data(df, y_col_name));
-    this->model.mle();
-};
+PoissonRegressionTrainer::PoissonRegressionTrainer(DataFramePosRegTransformer* transforms_val) : transforms{transforms_val} {}
 
-std::vector<double> PoissonRegressionTrainer::predict(ULDataFrame &df) {
-    ULDataFrame transformed_df = one_hot_encode(std::move(df));
-    add_intercept(transformed_df);
-    
-    auto get_num_rows = [](const ULDataFrame &df) { return df.shape().first; };
-    std::vector<double> result;
-    // for (int i = 0; i < get_num_rows(df); i++) {
-    //     result.push_back(model.predict(dataframe_row_to_boom_vector(df.get_row(i))));
-    // }
+PoissonRegressionModelData PoissonRegressionTrainer::get_poisson_regression_model_data(ULDataFrame df, std::string y_col_name) {
+    ULDataFrame transformed_df = transforms->one_hot_encode(std::move(df));
 
-    return result;
-};
+    std::vector<std::string> col_names{transforms->get_col_names(transformed_df)};
+    std::vector<std::string> x_col_names;
+    std::copy_if(col_names.begin(), col_names.end(), std::back_inserter(x_col_names), [y_col_name](std::string col_name) {
+        return col_name != y_col_name;
+    });
+
+    std::vector<Ptr<PoissonRegressionData>> data{transforms->convert_to_poisson_regression_data(transformed_df, y_col_name, x_col_names)};
+
+    return PoissonRegressionModelData{data, x_col_names};
+}
+
+std::vector<ConstVectorView> PoissonRegressionTrainer::generate_x(ULDataFrame df, PoissonRegressionModelData model_data) {
+    return std::vector<ConstVectorView>{};
+}
