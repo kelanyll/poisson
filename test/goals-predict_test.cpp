@@ -176,3 +176,65 @@ TEST(ConvertToPoissonRegressionDataTest, FullTestCase) {
 
     EXPECT_TRUE(is_equal);
 }
+
+TEST(AddMissingColsTest, FullTestCase) {
+    DataFramePosRegTransformerImpl transforms;
+
+    ULDataFrame test_df{};
+    test_df.load_data(std::vector<unsigned long>{1,2}, 
+        std::make_pair("team_Wolves", std::vector<unsigned int>{1, 0}),
+        std::make_pair("team_Sunderland", std::vector<unsigned int>{0, 1}),
+        std::make_pair("opponent_Wolves", std::vector<unsigned int>{0, 1}),
+        std::make_pair("opponent_Sunderland", std::vector<unsigned int>{1, 0}),
+        std::make_pair("home", std::vector<unsigned int>{1, 0}),
+        std::make_pair("intercept", std::vector<unsigned int>{1, 1})
+    );
+
+    std::vector<std::string> col_names{"team_Wolves", "team_Chelsea", "team_Sunderland", "opponent_Wolves",
+    "opponent_Chelsea", "opponent_Sunderland", "home", "intercept"};
+
+    ULDataFrame actual_df{transforms.add_missing_cols(test_df, col_names)};
+    
+    ULDataFrame expected_df{};
+    expected_df.load_data(std::vector<unsigned long>{1,2}, 
+        std::make_pair("team_Wolves", std::vector<unsigned int>{1, 0}),
+        std::make_pair("team_Sunderland", std::vector<unsigned int>{0, 1}),
+        std::make_pair("opponent_Wolves", std::vector<unsigned int>{0, 1}),
+        std::make_pair("opponent_Sunderland", std::vector<unsigned int>{1, 0}),
+        std::make_pair("home", std::vector<unsigned int>{1, 0}),
+        std::make_pair("intercept", std::vector<unsigned int>{1, 1}),
+        std::make_pair("team_Chelsea", std::vector<unsigned int>{0, 0}),
+        std::make_pair("opponent_Chelsea", std::vector<unsigned int>{0, 0})
+    );
+
+    auto is_equal = check_df_equal<unsigned int>(actual_df, expected_df);
+    EXPECT_TRUE(is_equal);
+}
+
+TEST(GetRowVectorsTest, FullTestCase) {
+    DataFramePosRegTransformerImpl transforms;
+
+    ULDataFrame test_df{};
+    test_df.load_data(std::vector<unsigned long>{1,2}, 
+        std::make_pair("team_Wolves", std::vector<unsigned int>{1, 0}),
+        std::make_pair("team_Sunderland", std::vector<unsigned int>{0, 1}),
+        std::make_pair("opponent_Wolves", std::vector<unsigned int>{0, 1}),
+        std::make_pair("opponent_Sunderland", std::vector<unsigned int>{1, 0}),
+        std::make_pair("home", std::vector<unsigned int>{1, 0}),
+        std::make_pair("intercept", std::vector<unsigned int>{1, 1}),
+        std::make_pair("team_Chelsea", std::vector<unsigned int>{0, 0}),
+        std::make_pair("opponent_Chelsea", std::vector<unsigned int>{0, 0})
+    );
+
+    std::vector<std::string> col_names{"team_Wolves", "team_Chelsea", "team_Sunderland", "opponent_Wolves",
+    "opponent_Chelsea", "opponent_Sunderland", "home", "intercept"};
+
+    std::vector<std::vector<unsigned int>> actual{transforms.get_row_vectors(test_df, col_names)};
+    
+    std::vector<std::vector<unsigned int>> expected{
+        std::vector<unsigned int>{1, 0, 0, 0, 0, 1, 1, 1},
+        std::vector<unsigned int>{0, 0, 1, 1, 0, 0, 0, 1}
+    };
+
+    EXPECT_EQ(actual, expected);
+}

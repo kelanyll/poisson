@@ -11,7 +11,7 @@ public:
     MOCK_METHOD(std::vector<std::string>, get_col_names,(ULDataFrame df), (override));
     MOCK_METHOD(std::vector<Ptr<PoissonRegressionData>>, convert_to_poisson_regression_data,(ULDataFrame df, std::string y_col_name, std::vector<std::string> x_col_names), (override));
     MOCK_METHOD(ULDataFrame, add_missing_cols, (ULDataFrame df, std::vector<std::string> col_names), (override));
-    MOCK_METHOD(std::vector<std::vector<double>>, get_row_vectors, (ULDataFrame df), (override));
+    MOCK_METHOD(std::vector<std::vector<unsigned int>>, get_row_vectors, (ULDataFrame df, std::vector<std::string> col_names), (override));
 };
 
 TEST(GetPoissonRegressionModelData, FullTestCase) {
@@ -113,17 +113,17 @@ TEST(GenerateXTest, FullTestCase) {
     );
     EXPECT_CALL(mock_transform, add_missing_cols).WillOnce(Return(add_missing_cols_val));
 
-    std::vector<std::vector<double>> get_row_vectors_val{
-        std::vector<double>{1, 0, 0, 0, 0, 1, 1, 1},
-        std::vector<double>{0, 0, 1, 1, 0, 0, 0, 1}
+    std::vector<std::vector<unsigned int>> get_row_vectors_val{
+        std::vector<unsigned int>{1, 0, 0, 0, 0, 1, 1, 1},
+        std::vector<unsigned int>{0, 0, 1, 1, 0, 0, 0, 1}
     };
     EXPECT_CALL(mock_transform, get_row_vectors).WillOnce(Return(get_row_vectors_val));
 
-    std::vector<std::vector<double>> actual{trainer.generate_x(test_df, model_data)};
+    std::vector<std::vector<unsigned int>> actual{trainer.generate_x(test_df, model_data)};
 
-    std::vector<std::vector<double>> expected{
-        std::vector<double>{1, 0, 0, 0, 0, 1, 1, 1},
-        std::vector<double>{0, 0, 1, 1, 0, 0, 0, 1}
+    std::vector<std::vector<unsigned int>> expected{
+        std::vector<unsigned int>{1, 0, 0, 0, 0, 1, 1, 1},
+        std::vector<unsigned int>{0, 0, 1, 1, 0, 0, 0, 1}
     };
 
     EXPECT_EQ(actual, expected);

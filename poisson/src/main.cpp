@@ -65,7 +65,7 @@ void print_variables(std::vector<std::string> names, std::vector<double> coefs) 
 
 ULDataFrame get_test_data() {
     ULDataFrame df;
-    df.load_data(std::vector<unsigned long>{1,2,3}, 
+    df.load_data(std::vector<unsigned long>{1,2}, 
         std::make_pair("team", std::vector<std::string>{"Wolves", "Sunderland"}),
         std::make_pair("opponent", std::vector<std::string>{"Sunderland", "Wolves"}),
         std::make_pair("home", std::vector<bool>{true, false})
@@ -86,7 +86,6 @@ int main() {
     model.mle();
     print_variables(model_data.x_col_names, model.coef().vectorize());
 
-    // transform_to_row_per_goals has to be able to convert test rows as well (without goals columns)
     ULDataFrame test_df{add_intercept(get_test_data())};
     
     for (Vector x : trainer.generate_x(test_df, model_data)) {

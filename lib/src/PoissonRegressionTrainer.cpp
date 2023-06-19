@@ -20,9 +20,9 @@ PoissonRegressionModelData PoissonRegressionTrainer::get_poisson_regression_mode
     return PoissonRegressionModelData{data, x_col_names};
 }
 
-std::vector<std::vector<double>> PoissonRegressionTrainer::generate_x(ULDataFrame df, PoissonRegressionModelData model_data) {
+std::vector<std::vector<unsigned int>> PoissonRegressionTrainer::generate_x(ULDataFrame df, PoissonRegressionModelData model_data) {
     ULDataFrame transformed_df{transforms->one_hot_encode(std::move(df))};
     transformed_df = transforms->add_missing_cols(transformed_df, model_data.x_col_names);
     
-    return transforms->get_row_vectors(transformed_df);
+    return transforms->get_row_vectors(transformed_df, model_data.x_col_names);
 }
