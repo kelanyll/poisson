@@ -5,15 +5,60 @@
 #include "PoissonRegressionTrainer.hpp"
 #include "data-types.hpp"
 #include "util.hpp"
+#include <unistd.h>
+
+std::vector<std::vector<std::string>> readCSV(const std::string& filename) {
+    std::ifstream file(filename);
+    std::vector<std::string> col_names{};
+    std::vector<std::vector<std::string>> data{};
+
+    if (!file.is_open()) {
+        std::cout << "Failed to open file: " << filename << std::endl;
+        return data;
+    }
+
+    std::string line;
+    if (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string value;
+        while (std::getline(ss, value, ',')) {
+            col_names.push_back(value);
+            data.push_back({}); // Each value starts a new column vector
+        }
+    }
+
+    while (std::getline(file, line)) {
+        std::stringstream ss(line);
+        std::string value;
+        size_t col = 0;
+        while (std::getline(ss, value, ',')) {
+            data[col++].push_back(value);
+        }
+    }
+
+    file.close();
+    return data;
+}
 
 ULDataFrame get_data() {
-    // to be replaced with loading from csv
+    auto data = readCSV("prem-11-12.csv");
+
+    auto convert_vec_str_to_uint = [](std::vector<std::string>& str_vec) {
+        std::vector<unsigned int> uint_vec{};
+        std::transform(str_vec.begin(), str_vec.end(), std::back_inserter(uint_vec), [](std::string str) {
+            return std::stoul(str);
+        });
+        return uint_vec;
+    };
+
     ULDataFrame df;
-    df.load_data(std::vector<unsigned long>{1,2,3}, 
-        std::make_pair("home", std::vector<std::string>{"Wolves", "Sunderland","Chelsea"}),
-        std::make_pair("away", std::vector<std::string>{"Sunderland", "Chelsea","Wolves"}),
-        std::make_pair("home_goals", std::vector<unsigned int>{0, 2, 2}),
-        std::make_pair("away_goals", std::vector<unsigned int>{2, 1, 0})
+    std::vector<unsigned long> index(data[0].size());
+    std::iota(index.begin(), index.end(), 1);
+    df.load_data(std::move(index),  
+        std::make_pair("HomeTeam", data[2]),
+        std::make_pair("AwayTeam", data[3]),
+        std::make_pair("FTHG", convert_vec_str_to_uint(data[4])),
+        std::make_pair("FTAG", convert_vec_str_to_uint(data[5]))
     );
 
     return df;
@@ -28,10 +73,10 @@ ULDataFrame transform_to_row_per_goals(ULDataFrame df) {
     std::vector<unsigned long> idx{df.get_index()};
     new_df.load_index(idx.begin(), idx.end());
 
-    new_df.load_column<std::string>("team", df.get_column<std::string>("home"));
-    new_df.load_column<std::string>("opponent", df.get_column<std::string>("away"));
+    new_df.load_column<std::string>("team", df.get_column<std::string>("HomeTeam"));
+    new_df.load_column<std::string>("opponent", df.get_column<std::string>("AwayTeam"));
     new_df.load_column<bool>("home", std::vector<bool>(get_num_rows(df), true));
-    new_df.load_column<unsigned int>("goals", df.get_column<unsigned int>("home_goals"));
+    new_df.load_column<unsigned int>("goals", df.get_column<unsigned int>("FTHG"));
 
     ULDataFrame away_rows{};
     
@@ -40,10 +85,10 @@ ULDataFrame transform_to_row_per_goals(ULDataFrame df) {
     std::iota(away_rows_idx.begin(), away_rows_idx.end(), idx.back() + 1);
     away_rows.load_index(away_rows_idx.begin(), away_rows_idx.end());
 
-    away_rows.load_column<std::string>("team", df.get_column<std::string>("away"));
-    away_rows.load_column<std::string>("opponent", df.get_column<std::string>("home"));
+    away_rows.load_column<std::string>("team", df.get_column<std::string>("AwayTeam"));
+    away_rows.load_column<std::string>("opponent", df.get_column<std::string>("HomeTeam"));
     away_rows.load_column<bool>("home", std::vector<bool>(get_num_rows(df), false));
-    away_rows.load_column<unsigned int>("goals", df.get_column<unsigned int>("away_goals"));
+    away_rows.load_column<unsigned int>("goals", df.get_column<unsigned int>("FTAG"));
 
     new_df.self_concat<ULDataFrame, std::string, bool, unsigned int>(away_rows);
 
@@ -57,17 +102,16 @@ ULDataFrame add_intercept(ULDataFrame df) {
 }
 
 void print_variables(std::vector<std::string> names, std::vector<double> coefs) {
-    std::copy(names.begin(), names.end(), std::ostream_iterator<std::string>(std::cout, " "));
-    std::cout << std::endl;
-    std::copy(coefs.begin(), coefs.end(), std::ostream_iterator<double>(std::cout, " "));
-    std::cout << std::endl;
+    for (int i = 0; i < names.size(); i++) {
+        std::cout << names[i] << ": " << coefs[i] << std::endl;
+    }
 }
 
 ULDataFrame get_test_data() {
     ULDataFrame df;
     df.load_data(std::vector<unsigned long>{1,2}, 
-        std::make_pair("team", std::vector<std::string>{"Wolves", "Sunderland"}),
-        std::make_pair("opponent", std::vector<std::string>{"Sunderland", "Wolves"}),
+        std::make_pair("team", std::vector<std::string>{"Aston Villa", "Sunderland"}),
+        std::make_pair("opponent", std::vector<std::string>{"Sunderland", "Aston Villa"}),
         std::make_pair("home", std::vector<bool>{true, false})
     );
 
