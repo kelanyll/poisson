@@ -2,7 +2,7 @@
 #include "PoissonRegressionModel.hpp"
 #include <DataFrame/DataFrame.h>
 #include "PoissonRegressionModelData.hpp"
-#include "goals-predict.hpp"
+#include "DataFramePosRegTransformer.hpp"
 
 /**
  * This is compatible with DataFrame columns of type unsigned int,

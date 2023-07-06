@@ -19,7 +19,7 @@ ExternalProject_Add(
     INSTALL_COMMAND ""
 )
 
-add_library(core lib/src/PoissonRegressionTrainer.cpp lib/src/goals-predict.cpp lib/src/util.cpp lib/src/PoissonRegressionModelData.cpp)
+add_library(core lib/src/PoissonRegressionTrainer.cpp lib/src/DataFramePosRegTransformer.cpp lib/src/util.cpp lib/src/PoissonRegressionModelData.cpp lib/src/csv.cpp)
 target_include_directories(core PUBLIC lib/include)
 target_include_directories(core PUBLIC ${BOOM_SRC_DIR})
 target_include_directories(core PUBLIC ${BOOM_SRC_DIR}/cpputil)
@@ -37,7 +37,7 @@ target_link_libraries(core PUBLIC DataFrame::DataFrame)
 add_executable(poisson poisson/src/main.cpp)
 target_link_libraries(poisson PUBLIC core)
 
-add_executable(tests test/goals-predict_test.cpp test/test-util.hpp test/PoissonRegressionTrainer_test.cpp)
+add_executable(tests test/DataFramePosRegTransformer_test.cpp test/test-util.hpp test/PoissonRegressionTrainer_test.cpp)
 target_link_libraries(tests PUBLIC core)
 
 enable_testing()

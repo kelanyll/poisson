@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
-#include "goals-predict.hpp"
+#include "DataFramePosRegTransformer.hpp"
 #include "PoissonRegressionTrainer.hpp"
 
 using ::testing::Return;
