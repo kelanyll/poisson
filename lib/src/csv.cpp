@@ -1,8 +1,4 @@
-#include <vector>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-
+#include "csv.hpp"
 
 std::vector<std::vector<std::string>> read_csv(const std::string& filename) {
     std::ifstream file(filename);

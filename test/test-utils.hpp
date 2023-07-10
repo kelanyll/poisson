@@ -1,4 +1,7 @@
+#include <iostream>
+
 #include "data-types.hpp"
+#include "utils.hpp"
 
 template<typename ... Ts>
 bool check_df_equal(ULDataFrame actual_df, ULDataFrame expected_df) {

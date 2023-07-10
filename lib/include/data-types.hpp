@@ -1,7 +1,3 @@
-#include <DataFrame/DataFrame.h>
-#include "PoissonRegressionModel.hpp"
+#include "DataFrame/DataFrame.h"
 
-using namespace BOOM;
-using namespace hmdf;
-
-using ULDataFrame = StdDataFrame<unsigned long>;
+using ULDataFrame = hmdf::StdDataFrame<unsigned long>;

@@ -1,7 +1,6 @@
 #include "PoissonRegressionModelData.hpp"
-#include "util.hpp"
 
-PoissonRegressionModelData::PoissonRegressionModelData(std::vector<Ptr<PoissonRegressionData>> data_val, 
+PoissonRegressionModelData::PoissonRegressionModelData(std::vector<BOOM::Ptr<BOOM::PoissonRegressionData>> data_val, 
     std::vector<std::string> x_col_names_val) : data{data_val}, x_col_names{x_col_names_val} {}
 
 bool operator==(const PoissonRegressionModelData& model_data1, const PoissonRegressionModelData& model_data2) {

@@ -1,9 +1,8 @@
-#include <iostream>
-#include "data-types.hpp"
+#include "utils.hpp"
 
 int get_num_rows(const ULDataFrame &df) { return df.shape().first; }
 
-bool ptr_poisson_regression_data_equal(const std::vector<Ptr<PoissonRegressionData>>& data1, const std::vector<Ptr<PoissonRegressionData>>& data2) {
+bool ptr_poisson_regression_data_equal(const std::vector<BOOM::Ptr<BOOM::PoissonRegressionData>>& data1, const std::vector<BOOM::Ptr<BOOM::PoissonRegressionData>>& data2) {
     bool is_equal = data1.size() == data2.size();
     for (int i = 0; i < data1.size() && is_equal; i++) {
         bool y_equal = data1[i]->y() == data2[i]->y();
@@ -19,7 +18,7 @@ bool ptr_poisson_regression_data_equal(const std::vector<Ptr<PoissonRegressionDa
 /*
 HomeTeam, AwayTeam, FTHG, FTAG -> team, opponent, home, goals
 */
-ULDataFrame transform_to_row_per_goals(ULDataFrame df) {
+ULDataFrame transform_to_row_per_goals(const ULDataFrame& df) {
     ULDataFrame new_df{};
 
     std::vector<unsigned long> idx{df.get_index()};
@@ -32,8 +31,7 @@ ULDataFrame transform_to_row_per_goals(ULDataFrame df) {
 
     ULDataFrame away_rows{};
     
-    int num_rows = get_num_rows(df);
-    std::vector<unsigned long> away_rows_idx(num_rows);
+    std::vector<unsigned long> away_rows_idx(get_num_rows(df));
     std::iota(away_rows_idx.begin(), away_rows_idx.end(), idx.back() + 1);
     away_rows.load_index(away_rows_idx.begin(), away_rows_idx.end());
 
@@ -47,7 +45,7 @@ ULDataFrame transform_to_row_per_goals(ULDataFrame df) {
     return new_df;
 }
 
-ULDataFrame add_intercept(ULDataFrame df) {
+ULDataFrame add_intercept(ULDataFrame&& df) {
     df.load_column<unsigned int>("intercept", std::vector<unsigned int>(get_num_rows(df), 1));
 
     return df;

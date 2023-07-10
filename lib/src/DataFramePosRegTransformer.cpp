@@ -1,17 +1,13 @@
 #include "DataFramePosRegTransformer.hpp"
-#include <cstdio>
 
-#include "data-types.hpp"
-#include "util.hpp"
-
-ULDataFrame DataFramePosRegTransformerImpl::one_hot_encode(ULDataFrame df) {
+ULDataFrame DataFramePosRegTransformerImpl::one_hot_encode(ULDataFrame& df) {
     one_hot_encode_string(df);
     one_hot_encode_bool(df);
 
     return df;
 }
 
-std::vector<std::string> DataFramePosRegTransformerImpl::get_col_names(ULDataFrame df) {
+std::vector<std::string> DataFramePosRegTransformerImpl::get_col_names(const ULDataFrame& df) {
     auto all_col_info{df.get_columns_info<unsigned int>()};
     std::vector<std::string> col_names{};
     std::transform(all_col_info.begin(), all_col_info.end(), std::back_inserter(col_names), 
@@ -24,16 +20,16 @@ std::vector<std::string> DataFramePosRegTransformerImpl::get_col_names(ULDataFra
     return col_names;
 }
 
-std::vector<Ptr<PoissonRegressionData>> DataFramePosRegTransformerImpl::convert_to_poisson_regression_data(ULDataFrame df, std::string y_col_name, std::vector<std::string> x_col_names) {
-    std::vector<Ptr<PoissonRegressionData>> data{};
+std::vector<BOOM::Ptr<BOOM::PoissonRegressionData>> DataFramePosRegTransformerImpl::convert_to_poisson_regression_data(const ULDataFrame& df, const std::string& y_col_name, const std::vector<std::string>& x_col_names) {
+    std::vector<BOOM::Ptr<BOOM::PoissonRegressionData>> data{};
 
     std::vector<const char*> x_col_names_c_str{};
-    std::transform(x_col_names.begin(), x_col_names.end(), std::back_inserter(x_col_names_c_str), [](std::string& col_name) {
+    std::transform(x_col_names.begin(), x_col_names.end(), std::back_inserter(x_col_names_c_str), [](const std::string& col_name) {
         return col_name.c_str();
     });
 
     for (int i = 0; i < get_num_rows(df); i++) {
-        data.push_back(Ptr{new PoissonRegressionData{
+        data.push_back(BOOM::Ptr{new BOOM::PoissonRegressionData{
             df.get_row<unsigned int>(i, std::vector<const char*>{y_col_name.c_str()}).get_vector<unsigned int>()[0],
             df.get_row<unsigned int>(i, x_col_names_c_str).get_vector<unsigned int>()
         }});
