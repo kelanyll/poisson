@@ -130,7 +130,7 @@ TEST(AddMissingColsTest, FullTestCase) {
     std::vector<std::string> col_names{"team_Wolves", "team_Chelsea", "team_Sunderland", "opponent_Wolves",
     "opponent_Chelsea", "opponent_Sunderland", "home", "intercept"};
 
-    ULDataFrame actual_df{transforms.add_missing_cols(test_df, col_names)};
+    transforms.add_missing_cols(test_df, col_names);
     
     ULDataFrame expected_df{};
     expected_df.load_data(std::vector<unsigned long>{1,2}, 
@@ -144,7 +144,7 @@ TEST(AddMissingColsTest, FullTestCase) {
         std::make_pair("opponent_Chelsea", std::vector<unsigned int>{0, 0})
     );
 
-    auto is_equal = check_df_equal<unsigned int>(actual_df, expected_df);
+    auto is_equal = check_df_equal<unsigned int>(test_df, expected_df);
     EXPECT_TRUE(is_equal);
 }
 

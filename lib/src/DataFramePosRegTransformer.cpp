@@ -1,10 +1,8 @@
 #include "DataFramePosRegTransformer.hpp"
 
-ULDataFrame DataFramePosRegTransformerImpl::one_hot_encode(ULDataFrame& df) {
+void DataFramePosRegTransformerImpl::one_hot_encode(ULDataFrame& df) {
     one_hot_encode_string(df);
     one_hot_encode_bool(df);
-
-    return df;
 }
 
 std::vector<std::string> DataFramePosRegTransformerImpl::get_col_names(const ULDataFrame& df) {
@@ -38,21 +36,19 @@ std::vector<BOOM::Ptr<BOOM::PoissonRegressionData>> DataFramePosRegTransformerIm
     return data;
 }
 
-ULDataFrame DataFramePosRegTransformerImpl::add_missing_cols(ULDataFrame df, std::vector<std::string> col_names) {
+void DataFramePosRegTransformerImpl::add_missing_cols(ULDataFrame& df, const std::vector<std::string>& col_names) {
     for (std::string col_name : col_names) {
         if (!df.has_column(col_name.c_str())) {
             df.load_column<unsigned int>(col_name.c_str(), std::vector<unsigned int>(get_num_rows(df), 0));
         }
     }
-
-    return df;
 }
 
-std::vector<std::vector<unsigned int>> DataFramePosRegTransformerImpl::get_row_vectors(ULDataFrame df, std::vector<std::string> col_names) {
+std::vector<std::vector<unsigned int>> DataFramePosRegTransformerImpl::get_row_vectors(const ULDataFrame& df, const std::vector<std::string>& col_names) {
     std::vector<std::vector<unsigned int>> rows{};
 
     std::vector<const char*> col_names_c_str{};
-    std::transform(col_names.begin(), col_names.end(), std::back_inserter(col_names_c_str), [](std::string& col_name) {
+    std::transform(col_names.begin(), col_names.end(), std::back_inserter(col_names_c_str), [](const std::string& col_name) {
         return col_name.c_str();
     });
 

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <utility>
 
 #include "PoissonRegressionModel.hpp"
 
@@ -66,7 +67,7 @@ int main() {
 
     ULDataFrame test_df{add_intercept(get_test_data())};
     
-    for (BOOM::Vector x : trainer.generate_x(test_df, model_data)) {
+    for (BOOM::Vector x : trainer.generate_x(std::move(test_df), model_data)) {
         double lambda = exp(model.predict(x));
         std::cout << "Expected goals: " << lambda << std::endl;
     }

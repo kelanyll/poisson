@@ -17,14 +17,16 @@
 using PoissonRegressionData = BOOM::PoissonRegressionData;
 using PoissonRegressionDataPtr = BOOM::Ptr<PoissonRegressionData>;
 using ::testing::Return;
+using ::testing::Invoke;
+using ::testing::Unused;
 
 class MockDataFramePosRegTransformer : public DataFramePosRegTransformer {
 public:
-    MOCK_METHOD(ULDataFrame, one_hot_encode, (ULDataFrame& df), (override));
+    MOCK_METHOD(void, one_hot_encode, (ULDataFrame& df), (override));
     MOCK_METHOD(std::vector<std::string>, get_col_names,(const ULDataFrame& df), (override));
     MOCK_METHOD(std::vector<PoissonRegressionDataPtr>, convert_to_poisson_regression_data,(const ULDataFrame& df, const std::string& y_col_name, const std::vector<std::string>& x_col_names), (override));
-    MOCK_METHOD(ULDataFrame, add_missing_cols, (ULDataFrame df, std::vector<std::string> col_names), (override));
-    MOCK_METHOD(std::vector<std::vector<unsigned int>>, get_row_vectors, (ULDataFrame df, std::vector<std::string> col_names), (override));
+    MOCK_METHOD(void, add_missing_cols, (ULDataFrame& df, const std::vector<std::string>& col_names), (override));
+    MOCK_METHOD(std::vector<std::vector<unsigned int>>, get_row_vectors, (const ULDataFrame& df, const std::vector<std::string>& col_names), (override));
 };
 
 TEST(GetPoissonRegressionModelData, FullTestCase) {
@@ -52,7 +54,9 @@ TEST(GetPoissonRegressionModelData, FullTestCase) {
         std::make_pair("goals", std::vector<unsigned int>{0, 1, 2, 2, 1, 0}),
         std::make_pair("intercept", std::vector<unsigned int>{1, 1, 1, 1, 1, 1})
     );
-    EXPECT_CALL(mock_transform, one_hot_encode).WillOnce(Return(one_hot_encode_val));
+    EXPECT_CALL(mock_transform, one_hot_encode).WillOnce(Invoke([one_hot_encode_val](ULDataFrame& df) {
+        df = one_hot_encode_val;
+    }));
 
     std::vector<std::string> x_col_names{"team_Wolves", "team_Chelsea", "team_Sunderland", "opponent_Wolves",
         "opponent_Chelsea", "opponent_Sunderland", "home", "intercept"};
@@ -111,7 +115,9 @@ TEST(GenerateXTest, FullTestCase) {
         std::make_pair("home", std::vector<unsigned int>{1, 0}),
         std::make_pair("intercept", std::vector<unsigned int>{1, 1})
     );
-    EXPECT_CALL(mock_transform, one_hot_encode).WillOnce(Return(one_hot_encode_val));
+    EXPECT_CALL(mock_transform, one_hot_encode).WillOnce(Invoke([one_hot_encode_val](ULDataFrame& df) {
+        df = one_hot_encode_val;
+    }));
 
     ULDataFrame add_missing_cols_val;
     add_missing_cols_val.load_data(std::vector<unsigned long>{1,2}, 
@@ -124,7 +130,9 @@ TEST(GenerateXTest, FullTestCase) {
         std::make_pair("team_Chelsea", std::vector<unsigned int>{0, 0}),
         std::make_pair("opponent_Chelsea", std::vector<unsigned int>{0, 0})
     );
-    EXPECT_CALL(mock_transform, add_missing_cols).WillOnce(Return(add_missing_cols_val));
+    EXPECT_CALL(mock_transform, add_missing_cols).WillOnce(Invoke([add_missing_cols_val](ULDataFrame& df, Unused) {
+        df = add_missing_cols_val;
+    }));
 
     std::vector<std::vector<unsigned int>> get_row_vectors_val{
         std::vector<unsigned int>{1, 0, 0, 0, 0, 1, 1, 1},
@@ -132,7 +140,7 @@ TEST(GenerateXTest, FullTestCase) {
     };
     EXPECT_CALL(mock_transform, get_row_vectors).WillOnce(Return(get_row_vectors_val));
 
-    std::vector<std::vector<unsigned int>> actual{trainer.generate_x(test_df, model_data)};
+    std::vector<std::vector<unsigned int>> actual{trainer.generate_x(std::move(test_df), model_data)};
 
     std::vector<std::vector<unsigned int>> expected{
         std::vector<unsigned int>{1, 0, 0, 0, 0, 1, 1, 1},
