@@ -8,7 +8,7 @@ PoissonRegressionModelData PoissonRegressionTrainer::get_poisson_regression_mode
     transforms->one_hot_encode(df);
 
     std::vector<std::string> col_names{transforms->get_col_names(df)};
-    std::vector<std::string> x_col_names;
+    std::vector<std::string> x_col_names{};
     std::copy_if(col_names.begin(), col_names.end(), std::back_inserter(x_col_names), [y_col_name](std::string col_name) {
         return col_name != y_col_name;
     });

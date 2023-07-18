@@ -1,7 +1,7 @@
 #include "csv.hpp"
 
 std::vector<std::vector<std::string>> read_csv(const std::string& filename) {
-    std::ifstream file(filename);
+    std::ifstream file{filename};
     std::vector<std::string> col_names{};
     std::vector<std::vector<std::string>> data{};
 
@@ -10,10 +10,10 @@ std::vector<std::vector<std::string>> read_csv(const std::string& filename) {
         return data;
     }
 
-    std::string line;
+    std::string line{};
     if (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string value;
+        std::stringstream ss{line};
+        std::string value{};
         while (std::getline(ss, value, ',')) {
             col_names.push_back(value);
             data.push_back({}); // Each value starts a new column vector
@@ -21,8 +21,8 @@ std::vector<std::vector<std::string>> read_csv(const std::string& filename) {
     }
 
     while (std::getline(file, line)) {
-        std::stringstream ss(line);
-        std::string value;
+        std::stringstream ss{line};
+        std::string value{};
         size_t col = 0;
         while (std::getline(ss, value, ',')) {
             data[col++].push_back(value);

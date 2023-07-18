@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <vector>
 
 #include "Ptr.hpp"
 #include "PoissonRegressionData.hpp"
@@ -17,3 +18,5 @@ bool ptr_poisson_regression_data_equal(const std::vector<BOOM::Ptr<BOOM::Poisson
 ULDataFrame transform_to_row_per_goals(const ULDataFrame& df);
 
 ULDataFrame add_intercept(ULDataFrame&& df);
+
+std::vector<const char*> convert_to_c_str_vec(std::vector<std::string> strs);

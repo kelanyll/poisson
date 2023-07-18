@@ -50,3 +50,12 @@ ULDataFrame add_intercept(ULDataFrame&& df) {
 
     return df;
 }
+
+std::vector<const char*> convert_to_c_str_vec(std::vector<std::string> strs) {
+    std::vector<const char*> c_strs{};
+    std::transform(strs.begin(), strs.end(), std::back_inserter(c_strs), [](const std::string& str) {
+        return str.c_str();
+    });
+
+    return c_strs;
+}
