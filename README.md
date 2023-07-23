@@ -1,11 +1,12 @@
 # Predicting goals scored with Poisson regression written in C++
-This is a toy project to predict goals scored using Poisson Regression on the Premier League 11/12 season. It uses C++, unconventionally, instead of the industry standard for similar use cases - Python and R.
+This is a toy project to predict goals scored using Poisson Regression on the Premier League 11/12 season. It uses C++, unconventionally, instead of the industry standard for similar use cases - Python and R. See my blog for more details: https://www.kelanyll.com/posts/poisson-cpp/.
 
 ## Coding standards and principles
 As this was in part written to improve my C++ skills, I tried to follow a set of principles:
 - Ensure we're using move semantics wherever possible. This can be useful to reduce the instances where we're copying heavy 2d data structures.
 - Follow the [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#es23-prefer-the--initializer-syntax) and prefer uniform initialization.
 - Use test-driven development. Although the main reason for this is that it shortens the feedback loop.
+- Keep the CMake configuration clean and flexible.
 
 ## Development
 This was developed on an x64-linux machine with dependencies on dataframe@1.22.0 and gtest@1.13.0.
